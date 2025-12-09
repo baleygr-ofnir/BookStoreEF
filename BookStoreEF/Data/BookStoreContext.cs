@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BookStoreEF.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace BookStoreEF.Data;
 
@@ -33,7 +34,18 @@ public partial class BookStoreContext : DbContext
     public virtual DbSet<Store> Stores { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DefaultConnection");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false)
+                .AddUserSecrets<Program>()
+                .Build();
+        
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

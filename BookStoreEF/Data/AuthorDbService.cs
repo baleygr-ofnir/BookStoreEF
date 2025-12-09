@@ -3,10 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookStoreEF.Data;
 
-public class AuthorDbService(BookStoreContext context)
+public class AuthorDbService
 {
-    private BookStoreContext _context = context;
-
+    private BookStoreContext _context;
+    public AuthorDbService(BookStoreContext context)
+    {
+        _context = context;
+    } 
     // Author Actions
 
     public async Task<Author> CreateAuthor(Author author)
@@ -46,11 +49,18 @@ public class AuthorDbService(BookStoreContext context)
         if (existingAuthor == null) return null;
         
         updatedAuthor.AuthorId = id;
-        // Check if nam
-        if (string.IsNullOrEmpty(updatedAuthor.FirstName))
-        {
-            updatedAuthor.FirstName = existingAuthor.FirstName;
-        }
-        
+        _context.Authors.Update(updatedAuthor);
+        await _context.SaveChangesAsync();
+        return updatedAuthor;
+    }
+
+    public async Task<bool> DeleteAuthor(int id)
+    {
+        var author = await GetAuthor(id);
+        if (author == null) return false;
+
+        _context.Authors.Remove(author);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

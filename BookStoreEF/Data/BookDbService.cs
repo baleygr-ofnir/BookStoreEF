@@ -3,9 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookStoreEF.Data;
 
-public class BookDbService(BookStoreContext context)
+public class BookDbService
 {
-    private BookStoreContext _context = context;
+    private BookStoreContext _context;
+
+    public BookDbService(BookStoreContext context)
+    {
+        _context = context;
+    }
+    
     // Books Actions
     
     public async Task<Book> CreateBook(Book book)
@@ -36,18 +42,23 @@ public class BookDbService(BookStoreContext context)
             .ToListAsync();
     }
 
-    public async Task<List<Book>> GetBooksByAuthor(int authorId)
+    public async Task<List<Book>> GetBooksByAuthor(string firstName, string lastName)
     {
         return await _context.Books
             .AsNoTracking()
-            .Where(book => book.AuthorId == authorId)
+            .Where(book => book.Author.FirstName.Equals(firstName) && book.Author.LastName.Equals(lastName))
+            .Include(book => book.Author)
             .Include(book => book.Publisher)
             .ToListAsync();
     }
 
-    public async Task<Book> GetBook(string isbn)
+    public async Task<Book?> GetBook(string isbn)
     {
-        return await _context.Books.FindAsync(isbn);
+        return await _context.Books
+            .AsNoTracking()
+            .Include(book => book.Author)
+            .Include(book => book.Publisher)
+            .FirstOrDefaultAsync(book => book.Isbn == isbn);
     }
 
     public async Task<Inventory> GetBookInventory(string isbn)
@@ -58,17 +69,17 @@ public class BookDbService(BookStoreContext context)
     public async Task<Book> UpdateBook(Book book)
     {
         _context.Books.Update(book);
+        // Clear navigation properties if they're causing conflicts
+        _context.Entry(book).Reference(b => b.Author).IsModified = false;
+        _context.Entry(book).Reference(b => b.Publisher).IsModified = false;
         await _context.SaveChangesAsync();
-        return book;
+        return await GetBook(book.Isbn);
     }
 
     public async Task<bool> DeleteBook(string isbn)
     {
         var book = await _context.Books.FindAsync(isbn);
-        if (book == null)
-        {
-            return false;
-        }
+        if (book == null) return false;
 
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();

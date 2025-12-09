@@ -26,4 +26,10 @@ public partial class Book
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual Publisher Publisher { get; set; } = null!;
+
+    public override string ToString()
+    {
+        return
+            $"ISBN: {Isbn}, Author: {Author.LastName}, {Author.FirstName}, Title: {Title}, Language: {Language}, Price: {Price}, Publication Date: {PublicationDate},Publisher: {Publisher.PublisherName}";
+    }
 }

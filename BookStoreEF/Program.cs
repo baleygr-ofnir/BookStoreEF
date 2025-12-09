@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BookStoreEF.Data;
+using BookStoreEF.Management;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,13 +10,16 @@ namespace BookStoreEF;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
+        /*
         var host = Host.CreateDefaultBuilder(args).ConfigureServices((context, services) =>
         {}).Build();
         var configuration = host.Services.GetRequiredService<IConfiguration>();
         var connectionString = configuration.GetConnectionString("DefaultConnection");
+        */
+
         
-        
+        await BookStoreManager.Open();
     }
 }
