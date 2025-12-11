@@ -28,4 +28,10 @@ public partial class Store
     public virtual ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public override string ToString()
+    {
+        return
+            $"Store Name: {StoreName}, Street Address: {StreetAddress}, City: {City}, Region: {Region}, Postal Code: {PostalCode}, Country: {Country}, Phone Number: {PhoneNumber}, Email Address: {EmailAddress}, Store Manager: {StoreManager}";
+    }
 }

@@ -6,14 +6,14 @@ namespace BookStoreEF.Management;
 
 public static class BookStoreManager
 {
-    private static List<string> menuOptions = new List<string>()
+    private static List<string> menuOptions = new ()
     {
         "Books",
         "Authors",
         "Customers",
         "Exit"
     };
-    private static BookStoreContext _context = new BookStoreContext();
+    private static BookStoreContext _context = new ();
 
     public static async Task Open()
     {
@@ -24,10 +24,10 @@ public static class BookStoreManager
             switch (choice)
             {
                 case 0:
-                    await Books();
+                    await BookManagement.Open(_context);
                     break;
                 case 1:
-                    await Authors();
+                    await AuthorManagement.Open(_context);
                     break;
                 case 2:
                     await Customers();
@@ -38,123 +38,7 @@ public static class BookStoreManager
             }
         }
     }
-    
-    static async Task Books()
-    {
-        var service = new BookDbService(_context);
-        string isbn;
-        string authorFirstName;
-        string authorLastName;
-        string publisherName;
-        List<Book> books;
-        Author author;
-        Publisher publisher;
-        int choice = SelectionMenu("Books", BookManagement.Options);
-        Console.Clear();
-        
-        switch (choice)
-        {
-            case 0:
-                var newBook = BookManagement.SetupBook();
-                
-                Console.Write("Enter author first name: ");
-                authorFirstName = Console.ReadLine();
-                Console.Write("Enter author last name: ");
-                authorLastName = Console.ReadLine();
-                author = await _context.Authors.FirstOrDefaultAsync(author => 
-                        author.FirstName.ToLower().Equals(authorFirstName) && author.LastName.ToLower().Equals(authorLastName)
-                );
-                if (author == null)
-                {
-                    author = new Author()
-                    {
-                        FirstName = authorFirstName,
-                        LastName = authorLastName
-                    };
-                    newBook.Author = author;
-                }
-                else
-                {
-                    newBook.AuthorId = author.AuthorId;
-                    newBook.Author = author;
-                }
-                
-                Console.Write("Enter publisher name");
-                publisherName = Console.ReadLine();
-                publisher =
-                    await _context.Publishers.FirstOrDefaultAsync(publisher =>
-                        publisherName.ToLower().Equals(publisher.PublisherName));
-                if (publisher == null)
-                {
-                    publisher = new Publisher() { PublisherName = publisherName };
-                    newBook.Publisher = publisher;
-                }
-                else
-                {
-                    newBook.PublisherId = publisher.PublisherId;
-                    newBook.Publisher = publisher;
-                }
-                
-                var result = await service.CreateBook(newBook);
-                if (result == null)
-                {
-                    Console.WriteLine($"Error creating book, validate entered data: {newBook}");
-                }
-                else
-                {
-                    Console.WriteLine($"Book successfully created: {result}");
-                }
-                break;
-            case 1:
-                books = await service.GetBooks();
-                foreach (var book in books)
-                {
-                    Console.WriteLine(book);
-                }
-                break;
-            case 2:
-                Console.WriteLine("Enter book ISBN: (13 digits)");
-                isbn = ValidInput(13, $"{ValidInput()}");
-                var foundBook = await service.GetBook(isbn);
-                Console.WriteLine(foundBook);
-                break;
-            case 3:
-                Console.Write("Enter author first name: ");
-                authorFirstName = Console.ReadLine();
-                Console.Write("Enter author last name: ");
-                authorLastName = Console.ReadLine();
-                books = await service.GetBooksByAuthor(authorFirstName, authorLastName);
-                foreach (var book in books) Console.WriteLine(book);
-                break;
-            case 4:
-                isbn = ValidInput(13, $"{ValidInput()}");
-                var existingBook = await service.GetBook(isbn);
-                var updatedBook = BookManagement.SetupBook(true);
 
-                
-                updatedBook.Isbn = isbn;
-                updatedBook.AuthorId = existingBook.AuthorId;
-                updatedBook.PublisherId = updatedBook.PublisherId;
-                existingBook = null;
-                var updateResult = await service.UpdateBook(updatedBook);
-                if (updateResult == null)
-                {
-                    Console.WriteLine($"Error creating book, validate entered data: {updatedBook}");
-                }
-                else
-                {
-                    Console.Write($"Successfully updated book {updateResult}");
-                }
-                break;
-            case 5:
-                Console.Write("Enter ISBN of book to delete: ");
-                string isbnToDelete = ValidInput(13, $"{ValidInput()}");
-                var deleteResult = service.DeleteBook(isbnToDelete);
-                break;
-        }
-        Console.WriteLine("Enter any key to continue...");
-        Console.ReadKey(true);
-    }
     
     static async Task Authors()
     {
@@ -167,7 +51,7 @@ public static class BookStoreManager
 
     }
 
-    static int SelectionMenu(string title, List<string> menuOptions)
+    public static int SelectionMenu(string title, List<string> menuOptions)
     {
         ConsoleKeyInfo keyPressed;
         int currentIndex = 0;
@@ -205,7 +89,7 @@ public static class BookStoreManager
         return currentIndex;
     }
     
-    static string ValidInput(int requiredCharCount, string inputString)
+    public static string ValidInput(int requiredCharCount, string inputString)
     {
         do
         {
@@ -226,7 +110,7 @@ public static class BookStoreManager
         return inputString;
     }
 
-    static long ValidInput()
+    public static long ValidInput()
     {
         bool validInt;
         long integer;

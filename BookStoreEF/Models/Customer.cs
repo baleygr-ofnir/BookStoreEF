@@ -32,4 +32,10 @@ public partial class Customer
     public DateTime ModifiedDate { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public override string ToString()
+    {
+        return
+            $"Name: {FirstName} {LastName}, E-mail address: {EmailAddress}, Phone Number: {PhoneNumber}, Street Address: {StreetAddress}, City: {City}, Region: {Region}, Postal Code: {PostalCode}, Country: {Country}, Birthdate: {BirthDate}, Creation Date: {CreationDate.ToShortDateString()},{CreationDate.ToShortTimeString()}, Modified Date: {ModifiedDate.ToShortDateString()},{ModifiedDate.ToShortTimeString()}";
+    }
 }

@@ -30,6 +30,6 @@ public partial class Book
     public override string ToString()
     {
         return
-            $"ISBN: {Isbn}, Author: {Author.LastName}, {Author.FirstName}, Title: {Title}, Language: {Language}, Price: {Price}, Publication Date: {PublicationDate},Publisher: {Publisher.PublisherName}";
+            $"ISBN: {Isbn}, Author: {Author.LastName}, {Author.FirstName}, Title: {Title}, Language: {Language}, Price: {Price}, Publication Date: {PublicationDate}, Publisher: {Publisher.PublisherName}";
     }
 }
