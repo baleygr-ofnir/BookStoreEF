@@ -19,9 +19,17 @@ public class InventoryRepository : GenericRepository<Inventory>
                 i.Isbn == entity.Isbn
         );
 
-        inventory.Quantity = entity.Quantity;
+        inventory.Quantity += entity.Quantity;
 
         return base.Update(inventory);
+    }
+
+    public override async Task<IEnumerable<Inventory>> All()
+    {
+        return await Context.Inventories
+            .AsNoTracking()
+            .Include(i => i.IsbnNavigation)
+            .ToListAsync();
     }
 
     public override async Task<IEnumerable<Inventory>> Find(Expression<Func<Inventory, bool>> predicate)

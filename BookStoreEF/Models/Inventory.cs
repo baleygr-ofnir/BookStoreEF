@@ -18,6 +18,6 @@ public partial class Inventory
     public override string ToString()
     {
         return
-            $"Store: {Store} ({StoreId}), Book: {IsbnNavigation.Title} ({Isbn}), Price: {IsbnNavigation.Price}, Quantity: {Quantity}";
+            $"{IsbnNavigation.Title}, ISBN: {Isbn}, Price: {IsbnNavigation.Price}, Quantity: {Quantity}";
     }
 }

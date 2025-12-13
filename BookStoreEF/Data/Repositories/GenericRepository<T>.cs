@@ -19,14 +19,12 @@ public abstract class GenericRepository<T>
     public virtual async Task<T> Add(T entity)
     {
         await Context.AddAsync(entity);
-        await SaveChanges();
         return entity;
     }
 
     public virtual async Task<T> Update(T entity)
     {
         Context.Update(entity);
-        await SaveChanges();
         return entity;
     }
 
@@ -43,6 +41,7 @@ public abstract class GenericRepository<T>
     public virtual async Task<IEnumerable<T>> All()
     {
         return await Context.Set<T>()
+            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -73,12 +72,12 @@ public abstract class GenericRepository<T>
         if (entity == null) return false;
 
         Context.Set<T>().Remove(entity);
-        await SaveChanges();
         return true;
     }
 
     public virtual async Task SaveChanges()
     {
-        await Context.SaveChangesAsync();
+        var result = await Context.SaveChangesAsync();
+        Console.WriteLine(result);
     }
 }

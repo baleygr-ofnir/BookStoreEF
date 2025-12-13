@@ -12,14 +12,6 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        /*
-        var host = Host.CreateDefaultBuilder(args).ConfigureServices((context, services) =>
-        {}).Build();
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        */
-
-        
         await BookStoreManager.Open();
     }
 }

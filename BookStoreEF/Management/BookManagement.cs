@@ -33,14 +33,14 @@ public static class BookManagement
         IEnumerable<Book> books;
         Author author;
         Publisher publisher;
-        int choice = BookStoreManager.SelectionMenu("Books", BookManagement.Options);
+        int choice = BookStoreManager.SelectionMenu("Manage Books", BookManagement.Options);
         Console.Clear();
         
         switch (choice)
         {
             // Create Book
             case 0:
-                var newBook = SetupBook();
+                var newBook = SetupNew();
                 
                 Console.Write("Enter author first name: ");
                 authorFirstName = Console.ReadLine();
@@ -131,7 +131,7 @@ public static class BookManagement
                     Console.WriteLine("No book was found with supplied ISBN, returning...");
                     break;
                 }
-                var updatedBook = SetupBook(true);
+                var updatedBook = SetupNew(true);
                 updatedBook.Isbn = isbn;
                 
                 var updateResult = bookRepository.Update(updatedBook);
@@ -164,7 +164,7 @@ public static class BookManagement
         Console.ReadKey(true);
     }
 
-    public static Book SetupBook(bool updating = false)
+    public static Book SetupNew(bool updating = false)
     {
         var book = new Book();
 

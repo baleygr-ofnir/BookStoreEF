@@ -10,7 +10,8 @@ public static class BookStoreManager
     {
         "Books",
         "Authors",
-        "Customers",
+        "Inventory",
+        "Store",
         "Exit"
     };
     private static BookStoreContext _context = new ();
@@ -30,25 +31,16 @@ public static class BookStoreManager
                     await AuthorManagement.Open(_context);
                     break;
                 case 2:
-                    await Customers();
+                    await InventoryManagement.Open(_context);
                     break;
                 case 3:
+                    await StoreManagement.Open(_context);
+                    break;
+                case 4:
                     running = false;
                     break;
             }
         }
-    }
-
-    
-    static async Task Authors()
-    {
-        throw new NotImplementedException();
-    }
-
-    static async Task Customers()
-    {
-        throw new NotImplementedException();
-
     }
 
     public static int SelectionMenu(string title, List<string> menuOptions)
