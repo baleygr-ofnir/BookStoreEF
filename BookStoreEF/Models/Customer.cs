@@ -32,7 +32,7 @@ public partial class Customer
     public DateTime ModifiedDate { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
+    
     public override string ToString()
     {
         return

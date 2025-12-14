@@ -9,7 +9,7 @@ public class PublisherRepository : GenericRepository<Publisher>
     {
     }
 
-    public override Task<Publisher> Update(Publisher entity)
+    public override Publisher Update(Publisher entity)
     {
         var publisher = Context.Publishers
             .FirstOrDefault(p => p.PublisherId == entity.PublisherId);

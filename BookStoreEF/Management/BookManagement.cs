@@ -40,49 +40,9 @@ public static class BookManagement
         {
             // Create Book
             case 0:
-                var newBook = SetupNew();
+                var newBook = await SetupNew();
                 
-                Console.Write("Enter author first name: ");
-                authorFirstName = Console.ReadLine();
-                Console.Write("Enter author last name: ");
-                authorLastName = Console.ReadLine();
-                author = await authorRepository.FindOne(a =>
-                    a.FirstName.ToLower().Equals(authorFirstName.ToLower()) &&
-                    a.LastName.ToLower().Equals(authorLastName.ToLower())
-                );
-                if (author == null)
-                {
-                    author = new Author()
-                    {
-                        FirstName = authorFirstName,
-                        LastName = authorLastName
-                    };
-                    await authorRepository.Add(author);
-                    await authorRepository.SaveChanges();
-                    newBook.AuthorId = author.AuthorId;
-                }
-                else
-                {
-                    newBook.AuthorId = author.AuthorId;
-                    newBook.Author = author;
-                }
-                
-                Console.Write("Enter publisher name");
-                publisherName = Console.ReadLine();
-                publisher = await publisherRepository.FindOne(
-                    p =>
-                        p.PublisherName.ToLower().Equals(publisherName.ToLower())
-                );
-                if (publisher == null)
-                {
-                    publisher = new Publisher() { PublisherName = publisherName };
-                    newBook.Publisher = publisher;
-                }
-                else
-                {
-                    newBook.PublisherId = publisher.PublisherId;
-                    newBook.Publisher = publisher;
-                }
+
                 
                 var result = await bookRepository.Add(newBook);
                 if (result == null)
@@ -95,12 +55,9 @@ public static class BookManagement
                 }
                 break;
             // Get All Books
-            case 1:
+            case 1: 
                 books = await bookRepository.All();
-                foreach (var book in books)
-                {
-                    Console.WriteLine(book);
-                }
+                (books as List<Book>).ForEach(Console.WriteLine);
                 break;
             // Get Book by ISBN
             case 2:
@@ -120,7 +77,7 @@ public static class BookManagement
                         b.Author.FirstName.ToLower().Equals(authorFirstName.ToLower()) &&
                         b.Author.LastName.ToLower().Equals(authorLastName.ToLower())
                 );
-                foreach (var book in books) Console.WriteLine(book);
+                (books as List<Book>).ForEach(Console.WriteLine);
                 break;
             // Update book
             case 4:
@@ -131,7 +88,7 @@ public static class BookManagement
                     Console.WriteLine("No book was found with supplied ISBN, returning...");
                     break;
                 }
-                var updatedBook = SetupNew(true);
+                var updatedBook = await SetupNew(true);
                 updatedBook.Isbn = isbn;
                 
                 var updateResult = bookRepository.Update(updatedBook);
@@ -160,31 +117,58 @@ public static class BookManagement
                 }
                 break;
         }
-        Console.WriteLine("Enter any key to continue...");
-        Console.ReadKey(true);
     }
 
-    public static Book SetupNew(bool updating = false)
+    public static async Task<Book> SetupNew(bool updating = false)
     {
         var book = new Book();
-
+        var authors = await authorRepository.All() as List<Author>;
+        int authorIndex = BookStoreManager.SelectionMenu("Select Author",
+            authors.Select(a => $"{a.FirstName} {a.LastName}").ToList());
+        var author = authors[authorIndex];
+        book.AuthorId = author.AuthorId;
+        Console.WriteLine(author);
         if (!updating)
         {
             Console.Write("Enter book ISBN: ");
             book.Isbn = Console.ReadLine();
         }
-        
+
         Console.Write("Enter book title: ");
         book.Title = Console.ReadLine();
-        
+
         Console.Write("Enter book price (e.g. 12.30): ");
         book.Price = decimal.TryParse(Console.ReadLine(), out decimal price) ? price : 0;
-        
+
         Console.Write("Enter book language (e.g. \"en\", \"sv\"): ");
         book.Language = Console.ReadLine();
-        
+
         Console.Write("Enter book publication date (e.g. 2025-02-04): ");
         book.PublicationDate = DateOnly.Parse(Console.ReadLine());
+
+        var publishers = await publisherRepository.All() as List<Publisher>;
+        Publisher publisher;
+        List<string> publisherNames = publishers.Select(p => p.PublisherName).ToList();
+        publisherNames.Add("Publisher name not available");
+        int publisherChoice = BookStoreManager.SelectionMenu("Select Publisher",publisherNames);
+        if (publisherNames[publisherChoice] == publisherNames.Last())
+        {
+            Console.Write("Enter name of new publisher: ");
+            string publisherName = Console.ReadLine();
+            
+            Console.Write("Enter publisher country: ");
+            string publisherCountry = Console.ReadLine();
+            publisher = new Publisher()
+            {
+                PublisherName = publisherName,
+                Country = publisherCountry
+            };
+        }
+        else
+        {
+            publisher = publishers[publisherChoice];
+        }
+        book.PublisherId = publisher.PublisherId;
 
         return book;
     }

@@ -40,9 +40,11 @@ public static class BookStoreManager
                     running = false;
                     break;
             }
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey(true);
         }
     }
-
+    
     public static int SelectionMenu(string title, List<string> menuOptions)
     {
         ConsoleKeyInfo keyPressed;
@@ -76,7 +78,6 @@ public static class BookStoreManager
                     break;
             }
         } while (keyPressed.Key != ConsoleKey.Enter);
-
         
         return currentIndex;
     }
@@ -113,7 +114,6 @@ public static class BookStoreManager
             if (!validInt) Console.WriteLine("Enter a valid integer.");
         } while (!validInt);
         
-
         return integer;
     }
 }

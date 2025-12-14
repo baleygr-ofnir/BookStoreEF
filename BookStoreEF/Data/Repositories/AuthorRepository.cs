@@ -11,7 +11,7 @@ public class AuthorRepository : GenericRepository<Author>
     {
     }
 
-    public override Task<Author> Update(Author entity)
+    public override Author Update(Author entity)
     {
         var author = Context.Authors.FirstOrDefault(a => a.AuthorId == entity.AuthorId);
 

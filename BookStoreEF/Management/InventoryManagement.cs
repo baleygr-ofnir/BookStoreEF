@@ -12,7 +12,8 @@ public static class InventoryManagement
     private static List<string> menuOptions = new()
     {
         "Adjust inventory",
-        "List inventory of store",
+        "List inventory of a selected store",
+        "Delete inventory entry"
     };
     public static async Task Open(BookStoreContext context)
     {
@@ -26,25 +27,29 @@ public static class InventoryManagement
         {
             case 0:
                 var newInventory = await Setup();
-                var addition = await inventoryRepository.Add(newInventory);
+                var existingInventory = await inventoryRepository.FindOne(i => (i.StoreId == newInventory.StoreId && i.Isbn == newInventory.Isbn)); 
+                var doesExist = existingInventory == null
+                    ? await inventoryRepository.Add(newInventory)
+                    : inventoryRepository.Update(newInventory);
                 await inventoryRepository.SaveChanges();
-                Console.WriteLine($"Inventory was added: {addition}");
+                Console.WriteLine($"Inventory for selected book at selected store was adjusted, new quantity: {existingInventory.Quantity}");
                 break;
             case 1:
                 var stores = await storeRepository.All();
                 List<string> storeNames = stores.Select(s => s.StoreName).ToList();
                 int storeChoice = BookStoreManager.SelectionMenu("Choose which store inventory to list", storeNames);
                 var store = stores.FirstOrDefault(s => s.StoreName.Equals(storeNames[storeChoice]));
+                var inventories = await inventoryRepository.Find(i => i.StoreId == store.StoreId) as List<Inventory>;
+                int totalBooks = 0;
+                inventories.ForEach(i => totalBooks += i.Quantity);
                 Console.WriteLine($"{store.StoreName}:");
-                
-                foreach (var inventory in store.Inventories)
-                {
-                    Console.WriteLine(inventory);
-                }
+                inventories.ForEach(Console.WriteLine);
+                Console.WriteLine($"Total amount of books in store: {totalBooks}");                
+                break;
+            case 2:
+                // Delete
                 break;
         }
-        Console.WriteLine("Press any key to continue...");
-        Console.ReadKey(true);
     }
 
     public static async Task<Inventory> Setup()

@@ -10,7 +10,7 @@ public class CustomerRepository : GenericRepository<Customer>
     {
     }
 
-    public override Task<Customer> Update(Customer entity)
+    public override Customer Update(Customer entity)
     {
         var customer = Context.Customers.FirstOrDefault(c => c.CustomerId == entity.CustomerId);
 

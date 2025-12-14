@@ -11,7 +11,7 @@ public class InventoryRepository : GenericRepository<Inventory>
     {
     }
     
-    public override Task<Inventory> Update(Inventory entity)
+    public override Inventory Update(Inventory entity)
     {
         var inventory = Context.Inventories.FirstOrDefault(
             i =>
@@ -21,6 +21,11 @@ public class InventoryRepository : GenericRepository<Inventory>
 
         inventory.Quantity += entity.Quantity;
 
+        if (inventory.Quantity < 0)
+        {
+            inventory.Quantity = 0;
+        }
+        
         return base.Update(inventory);
     }
 

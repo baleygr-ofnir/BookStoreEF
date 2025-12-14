@@ -132,7 +132,6 @@ public partial class BookStoreContext : DbContext
 
             entity.HasOne(d => d.IsbnNavigation).WithMany(p => p.Inventories)
                 .HasForeignKey(d => d.Isbn)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Inventory__ISBN__5441852A");
 
             entity.HasOne(d => d.Store).WithMany(p => p.Inventories)
@@ -202,11 +201,12 @@ public partial class BookStoreContext : DbContext
 
             entity.HasOne(d => d.IsbnNavigation).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.Isbn)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__OrderDetai__ISBN__6B24EA82");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK__OrderDeta__Order__6A30C649");
         });
 

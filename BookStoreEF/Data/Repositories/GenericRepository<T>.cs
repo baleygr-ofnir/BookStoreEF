@@ -22,7 +22,7 @@ public abstract class GenericRepository<T>
         return entity;
     }
 
-    public virtual async Task<T> Update(T entity)
+    public virtual T Update(T entity)
     {
         Context.Update(entity);
         return entity;

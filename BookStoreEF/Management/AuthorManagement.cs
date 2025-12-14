@@ -6,19 +6,37 @@ namespace BookStoreEF.Management;
 public static class AuthorManagement
 {
     private static IRepository<Author> authorRepository; 
-    private static IRepository<Book> bookRepository; 
-    private static IRepository<Publisher> publisherRepository; 
     private static List<string> menuOptions = new()
     {
         "Add new author",
         "List all authors",
-        "Find author",
-        ""
+        "Update existing author",
+        "Delete existing author"
     };
     
     public static async Task Open(BookStoreContext context)
     {
-        
+        authorRepository = new AuthorRepository(context);
+        int menuChoice = BookStoreManager.SelectionMenu("Author Management", menuOptions);
+
+        switch (menuChoice)
+        {
+            case 0:
+                var newAuthor = SetupAuthor();
+                await authorRepository.Add(newAuthor);
+                await authorRepository.SaveChanges();
+                break;
+            case 1:
+                var authors = await authorRepository.All() as List<Author>;
+                authors.ForEach(Console.WriteLine);
+                break;
+            case 2:
+                // Update
+                break;
+            case 3:
+                // Delete
+                break;
+        }
     }
 
     public static Author SetupAuthor(bool updating = false)

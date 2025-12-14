@@ -11,7 +11,7 @@ public class StoreRepository : GenericRepository<Store>
     {
     }
 
-    public override Task<Store> Update(Store entity)
+    public override Store Update(Store entity)
     {
         var store = Context.Stores
             .FirstOrDefault(s => s.StoreId == entity.StoreId);
@@ -32,7 +32,6 @@ public class StoreRepository : GenericRepository<Store>
     public override async Task<IEnumerable<Store>> Find(Expression<Func<Store, bool>> predicate)
     {
         return await Context.Stores
-            .Include(s => s.Inventories)
             .Where(predicate)
             .ToListAsync();
     }

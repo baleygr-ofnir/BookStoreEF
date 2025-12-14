@@ -14,7 +14,7 @@ public partial class Author
     public DateOnly? Birthdate { get; set; }
 
     public virtual ICollection<Book> Books { get; set; } = new List<Book>();
-
+    
     public override string ToString()
     {
         return $"Name: {FirstName} {LastName}, Birthdate: {Birthdate}";

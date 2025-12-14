@@ -11,7 +11,7 @@ public class BookRepository : GenericRepository<Book>
     {
     }
 
-    public override Task<Book> Update(Book entity)
+    public override Book Update(Book entity)
     {
         var book = Context.Books
             .FirstOrDefault(b => b.Isbn == entity.Isbn);

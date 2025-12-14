@@ -26,7 +26,7 @@ public partial class Book
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual Publisher Publisher { get; set; } = null!;
-
+    
     public override string ToString()
     {
         return
