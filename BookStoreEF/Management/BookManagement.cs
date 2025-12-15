@@ -7,52 +7,75 @@ namespace BookStoreEF;
 
 public static class BookManagement
 {
-    private static IRepository<Author> authorRepository;
     private static IRepository<Book> bookRepository;
-    private static IRepository<Publisher> publisherRepository;
     
-    public static List<string> Options = new()
+    private static readonly List<string> _options = new()
     {
         "Add new book",
         "List all books",
         "Find book by ISBN",
         "Find books by author",
         "Update an existing book",
-        "Delete a book"
+        "Delete a book",
+        "Exit"
     };
+    
+    private static async Task<Book> Setup(bool updating = false)
+    {
+        Book book;
+
+        Console.Clear();
+        if (updating)
+        {
+            Console.WriteLine("Enter nothing if not updating...");
+            book = await Selection();
+        }
+        else
+        {
+            book = new Book();
+
+            var author = await AuthorManagement.Selection(true);
+
+            var publisher = await PublisherManagement.Selection(true);
+            
+            Console.Write("Enter book ISBN13 (only digits): ");
+            book.Isbn = BookStoreManager.ValidInput(13, $"{BookStoreManager.ValidInput()}"); 
+            
+            Console.Write("Enter book publication date (e.g. 2025-02-04): ");
+            book.PublicationDate = DateOnly.TryParse(Console.ReadLine(), out DateOnly publicationDate) ? publicationDate : DateOnly.Parse("2025-02-04");
+
+            book.AuthorId = author.AuthorId;
+            book.PublisherId = publisher.PublisherId;
+        }
+
+        Console.Write("Enter book title: ");
+        book.Title = Console.ReadLine();
+
+        Console.Write("Enter book price (e.g. 12.30): ");
+        book.Price = decimal.TryParse(Console.ReadLine(), out decimal price) ? price : 0;
+
+        Console.Write("Enter book language (e.g. \"en\", \"sv\"): ");
+        book.Language = BookStoreManager.ValidInput(2, Console.ReadLine().ToLower());
+
+        return book;
+    }
 
     public static async Task Open(BookStoreContext context)
     {
-        authorRepository = new AuthorRepository(context);
         bookRepository = new BookRepository(context);
-        publisherRepository = new PublisherRepository(context);
         string isbn;
-        string authorFirstName;
-        string authorLastName;
-        string publisherName;
         IEnumerable<Book> books;
         Author author;
-        Publisher publisher;
-        int choice = BookStoreManager.SelectionMenu("Manage Books", BookManagement.Options);
+        int choice = BookStoreManager.SelectionMenu("Books", _options);
         Console.Clear();
         
         switch (choice)
         {
             // Create Book
             case 0:
-                var newBook = await SetupNew();
-                
-
-                
-                var result = await bookRepository.Add(newBook);
-                if (result == null)
-                {
-                    Console.WriteLine($"Error creating book, validate entered data: {newBook}");
-                }
-                else
-                {
-                    Console.WriteLine($"Book successfully created: {result}");
-                }
+                var newBook = await Setup();
+                await bookRepository.Add(newBook);
+                await bookRepository.SaveChanges();
                 break;
             // Get All Books
             case 1: 
@@ -68,28 +91,13 @@ public static class BookManagement
                 break;
             // Get books by author name
             case 3:
-                Console.Write("Enter author first name: ");
-                authorFirstName = Console.ReadLine();
-                Console.Write("Enter author last name: ");
-                authorLastName = Console.ReadLine();
-                books = await bookRepository.Find(
-                    b =>
-                        b.Author.FirstName.ToLower().Equals(authorFirstName.ToLower()) &&
-                        b.Author.LastName.ToLower().Equals(authorLastName.ToLower())
-                );
+                author = await AuthorManagement.Selection(true);
+                books = await bookRepository.Find(b => b.Author == author);
                 (books as List<Book>).ForEach(Console.WriteLine);
                 break;
             // Update book
             case 4:
-                isbn = BookStoreManager.ValidInput(13, $"{BookStoreManager.ValidInput()}");
-                var existingBook = await bookRepository.Get(isbn);
-                if (existingBook == null)
-                {
-                    Console.WriteLine("No book was found with supplied ISBN, returning...");
-                    break;
-                }
-                var updatedBook = await SetupNew(true);
-                updatedBook.Isbn = isbn;
+                var updatedBook = await Setup(true);
                 
                 var updateResult = bookRepository.Update(updatedBook);
                 if (updateResult == null)
@@ -98,77 +106,35 @@ public static class BookManagement
                 }
                 else
                 {
-                    Console.Write($"Successfully updated book {updateResult}");
+                    await bookRepository.SaveChanges();
+                    Console.WriteLine($"Successfully updated book {updatedBook}");
                 }
                 break;
             // Delete book
             case 5:
-                Console.Write("Enter ISBN of book to delete: ");
-                string isbnToDelete = BookStoreManager.ValidInput(13, $"{BookStoreManager.ValidInput()}");
-                var deleteResult = await bookRepository.Delete(isbnToDelete);
+                var bookToDelete = await Selection();
+                var deleteResult = await bookRepository.Delete(bookToDelete.Isbn);
                 if (deleteResult)
                 {
-                    Console.WriteLine($"Book with ISBN {isbnToDelete} deletion was successful.");
+                    Console.WriteLine($"Deletion of \"{bookToDelete}\" was successful.");
                     await bookRepository.SaveChanges();
                 }
                 else
                 {
-                    Console.WriteLine($"Book with ISBN {isbnToDelete} deletion was unsuccessful.");
+                    Console.WriteLine($"Book {bookToDelete} deletion was unsuccessful.");
                 }
                 break;
         }
     }
 
-    public static async Task<Book> SetupNew(bool updating = false)
+    public static async Task<Book> Selection(bool fromOther = false)
     {
-        var book = new Book();
-        var authors = await authorRepository.All() as List<Author>;
-        int authorIndex = BookStoreManager.SelectionMenu("Select Author",
-            authors.Select(a => $"{a.FirstName} {a.LastName}").ToList());
-        var author = authors[authorIndex];
-        book.AuthorId = author.AuthorId;
-        Console.WriteLine(author);
-        if (!updating)
-        {
-            Console.Write("Enter book ISBN: ");
-            book.Isbn = Console.ReadLine();
-        }
-
-        Console.Write("Enter book title: ");
-        book.Title = Console.ReadLine();
-
-        Console.Write("Enter book price (e.g. 12.30): ");
-        book.Price = decimal.TryParse(Console.ReadLine(), out decimal price) ? price : 0;
-
-        Console.Write("Enter book language (e.g. \"en\", \"sv\"): ");
-        book.Language = Console.ReadLine();
-
-        Console.Write("Enter book publication date (e.g. 2025-02-04): ");
-        book.PublicationDate = DateOnly.Parse(Console.ReadLine());
-
-        var publishers = await publisherRepository.All() as List<Publisher>;
-        Publisher publisher;
-        List<string> publisherNames = publishers.Select(p => p.PublisherName).ToList();
-        publisherNames.Add("Publisher name not available");
-        int publisherChoice = BookStoreManager.SelectionMenu("Select Publisher",publisherNames);
-        if (publisherNames[publisherChoice] == publisherNames.Last())
-        {
-            Console.Write("Enter name of new publisher: ");
-            string publisherName = Console.ReadLine();
-            
-            Console.Write("Enter publisher country: ");
-            string publisherCountry = Console.ReadLine();
-            publisher = new Publisher()
-            {
-                PublisherName = publisherName,
-                Country = publisherCountry
-            };
-        }
-        else
-        {
-            publisher = publishers[publisherChoice];
-        }
-        book.PublisherId = publisher.PublisherId;
+        if (fromOther) bookRepository = new BookRepository(new BookStoreContext());
+        
+        var books = await bookRepository.All() as List<Book>;
+        int bookIndex = BookStoreManager.SelectionMenu("Select Book",
+            books.Select(b => $"{b}").ToList());
+        var book = books[bookIndex];
 
         return book;
     }

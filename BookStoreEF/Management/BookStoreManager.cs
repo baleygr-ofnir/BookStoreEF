@@ -6,10 +6,11 @@ namespace BookStoreEF.Management;
 
 public static class BookStoreManager
 {
-    private static List<string> menuOptions = new ()
+    private static List<string> _options = new ()
     {
         "Books",
         "Authors",
+        "Publishers",
         "Inventory",
         "Store",
         "Exit"
@@ -21,7 +22,7 @@ public static class BookStoreManager
         bool running = true;
         while (running)
         {
-            int choice = SelectionMenu("Book Store Manager", menuOptions);
+            int choice = SelectionMenu("Book Store Manager", _options);
             switch (choice)
             {
                 case 0:
@@ -31,17 +32,24 @@ public static class BookStoreManager
                     await AuthorManagement.Open(_context);
                     break;
                 case 2:
-                    await InventoryManagement.Open(_context);
+                    await PublisherManagement.Open(_context);
                     break;
                 case 3:
-                    await StoreManagement.Open(_context);
+                    await InventoryManagement.Open(_context);
                     break;
                 case 4:
+                    await StoreManagement.Open(_context);
+                    break;
+                case 5:
                     running = false;
                     break;
             }
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey(true);
+
+            if (choice < 5)
+            {
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey(true);
+            }
         }
     }
     
@@ -95,7 +103,7 @@ public static class BookStoreManager
                 }
                 else
                 {
-                    inputString = Console.ReadLine();
+                    inputString = ValidInput(requiredCharCount, Console.ReadLine());
                 }
             }
         } while (inputString.Length != requiredCharCount);

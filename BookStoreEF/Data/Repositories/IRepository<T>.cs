@@ -16,4 +16,5 @@ public interface IRepository<T> where T : class
     Task<bool> Delete(int id);
     Task<bool> Delete(string id);
     Task SaveChanges();
+    bool DeleteInventory(Inventory inventory);
 }

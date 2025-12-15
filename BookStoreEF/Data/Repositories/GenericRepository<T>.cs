@@ -80,4 +80,9 @@ public abstract class GenericRepository<T>
         var result = await Context.SaveChangesAsync();
         Console.WriteLine(result);
     }
+
+    public virtual bool DeleteInventory(Inventory inventory)
+    {
+        return false;
+    }
 }

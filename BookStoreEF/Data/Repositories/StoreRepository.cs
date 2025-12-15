@@ -16,15 +16,15 @@ public class StoreRepository : GenericRepository<Store>
         var store = Context.Stores
             .FirstOrDefault(s => s.StoreId == entity.StoreId);
 
-        store.StoreName = entity.StoreName;
-        store.StreetAddress = entity.StreetAddress;
-        store.City = entity.City;
-        store.Region = entity.Region;
-        store.PostalCode = entity.PostalCode;
-        store.Country = entity.Country;
-        store.PhoneNumber = entity.PhoneNumber;
-        store.EmailAddress = entity.EmailAddress;
-        store.StoreManager = entity.StoreManager;
+        if (!string.IsNullOrEmpty(entity.StoreName)) store.StoreName = entity.StoreName;
+        if (!string.IsNullOrEmpty(entity.StreetAddress)) store.StreetAddress = entity.StreetAddress;
+        if (!string.IsNullOrEmpty(entity.City)) store.City = entity.City;
+        if (!string.IsNullOrEmpty(entity.Region)) store.Region = entity.Region;
+        if (!string.IsNullOrEmpty(entity.PostalCode)) store.PostalCode = entity.PostalCode;
+        if (!string.IsNullOrEmpty(entity.Country)) store.Country = entity.Country;
+        if (!string.IsNullOrEmpty(entity.PhoneNumber)) store.PhoneNumber = entity.PhoneNumber;
+        if (!string.IsNullOrEmpty(entity.EmailAddress)) store.EmailAddress = entity.EmailAddress;
+        if (!string.IsNullOrEmpty(entity.StoreManager)) store.StoreManager = entity.StoreManager;
 
         return base.Update(store);
     }

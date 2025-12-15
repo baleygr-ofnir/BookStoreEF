@@ -19,7 +19,7 @@ public class InventoryRepository : GenericRepository<Inventory>
                 i.Isbn == entity.Isbn
         );
 
-        inventory.Quantity += entity.Quantity;
+        inventory.Quantity = entity.Quantity;
 
         if (inventory.Quantity < 0)
         {
@@ -34,6 +34,7 @@ public class InventoryRepository : GenericRepository<Inventory>
         return await Context.Inventories
             .AsNoTracking()
             .Include(i => i.IsbnNavigation)
+            .Include(i => i.Store)
             .ToListAsync();
     }
 
@@ -52,5 +53,11 @@ public class InventoryRepository : GenericRepository<Inventory>
             .Include(i => i.IsbnNavigation)
             .Include(i => i.Store)
             .FirstOrDefaultAsync(predicate);
+    }
+
+    public override bool DeleteInventory(Inventory inventory)
+    {
+        Context.Inventories.Remove(inventory);
+        return true;
     }
 }

@@ -32,6 +32,6 @@ public partial class Publisher
     public override string ToString()
     {
         return
-            $"Publisher Name: {PublisherName}, E-mail address: {EmailAddress}, Website: {Website}, Phone Number: {PhoneNumber}, Contact Person: {ContactPerson}, Street Address: {StreetAddress}, City: {City}, Region: {Region}, Postal Code: {PostalCode}, Country: {Country}";
+            $"Name: {PublisherName}, E-mail address: {EmailAddress}, Website: {Website}, Phone Number: {PhoneNumber}, Contact Person: {ContactPerson}, Street Address: {StreetAddress}, City: {City}, Region: {Region}, Postal Code: {PostalCode}, Country: {Country}\n";
     }
 }

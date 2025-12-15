@@ -15,9 +15,8 @@ public class AuthorRepository : GenericRepository<Author>
     {
         var author = Context.Authors.FirstOrDefault(a => a.AuthorId == entity.AuthorId);
 
-        author.FirstName = entity.FirstName;
-        author.LastName = entity.LastName;
-        author.Birthdate = entity.Birthdate;
+        if (!string.IsNullOrEmpty(entity.FirstName)) author.FirstName = entity.FirstName;
+        if (!string.IsNullOrEmpty(entity.LastName)) author.LastName = entity.LastName;
 
         return base.Update(author);
     }
